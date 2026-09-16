@@ -428,11 +428,10 @@ export default function App() {
                 Verification Pipeline
               </div>
               <h2 className="section-title" id="pipeline-heading">
-                10-Stage Automated<br />Document Intelligence
+                10-Stage Automated Document Intelligence
               </h2>
-              <p className="section-subtitle">
-                Every document passes through each stage sequentially — from raw image
-                quality checks to final XGBoost risk scoring — with full traceability.
+              <p className="section-subtitle" style={{ whiteSpace: 'nowrap' }}>
+                Every document passes through each stage sequentially from raw image quality checks to final XGBoost risk scoring with full traceability.
               </p>
             </div>
 
