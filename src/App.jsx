@@ -80,7 +80,7 @@ const PIPELINE_STEPS = [
   {
     id: 4,
     label: 'Structured Extraction',
-    tech: 'Regex + KW Matching + Bounding Boxes',
+    tech: 'KW Matching + Bounding Boxes',
     icon: <GridIcon size={20} color="#ff9f0a" />,
     color: '#ff9f0a',
     glow: 'rgba(255,159,10,0.25)',
