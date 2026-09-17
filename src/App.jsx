@@ -19,7 +19,6 @@ const CheckCircleIcon = (p) => <Icon {...p}><path d="M22 11.08V12a10 10 0 1 1-5.
 const XCircleIcon = (p) => <Icon {...p}><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></Icon>;
 const XIcon = (p) => <Icon {...p}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></Icon>;
 const ArrowRightIcon = (p) => <Icon {...p}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></Icon>;
-const ChevronRightIcon = (p) => <Icon {...p}><polyline points="9 18 15 12 9 6" /></Icon>;
 const EyeIcon = (p) => <Icon {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></Icon>;
 const CpuIcon = (p) => <Icon {...p}><rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" /><line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" /><line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" /><line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" /><line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" /></Icon>;
 const SearchIcon = (p) => <Icon {...p}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Icon>;
@@ -272,9 +271,6 @@ const PipelineCard = ({ step, index }) => (
         </span>
       </div>
 
-    </div>
-    <div className="pc-arrow">
-      <ChevronRightIcon size={16} color="var(--silver)" />
     </div>
   </div>
 );
@@ -606,7 +602,7 @@ export default function App() {
               </div>
               <ul className="footer-links">
                 <li><a href="#pipeline">Pipeline</a></li>
-                <li><a href="#privacy">Privacy</a></li>
+                <li><a href="https://www.youtube.com/watch?v=QDia3e12czc" target="_blank" rel="noopener noreferrer">Privacy</a></li>
                 <li><a href="#contact">Contact</a></li>
               </ul>
               <p className="footer-copy">© 2025 AuthenSight Inc. All rights reserved.</p>

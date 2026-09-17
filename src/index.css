@@ -1714,26 +1714,11 @@ body {
   animation: fade-up 0.5s var(--ease) both;
 }
 
-.pipeline-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--step-color, var(--blue-bright));
-  border-radius: 0 2px 2px 0;
-  opacity: 0;
-  transition: opacity var(--transition-base);
-}
-
 .pipeline-card:hover {
   background: var(--glass-bg-hover);
   border-color: color-mix(in srgb, var(--step-color, var(--blue-bright)) 30%, transparent);
   transform: translateX(4px);
   box-shadow: var(--shadow-sm), 0 0 20px var(--step-glow, rgba(10,132,255,0.1));
-}
-
-.pipeline-card:hover::before {
-  opacity: 1;
 }
 
 .pc-number {
@@ -1794,17 +1779,6 @@ body {
   font-size: 13px;
   color: var(--silver);
   line-height: 1.5;
-}
-
-.pc-arrow {
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity var(--transition-base), transform var(--transition-base);
-}
-
-.pipeline-card:hover .pc-arrow {
-  opacity: 1;
-  transform: translateX(3px);
 }
 
 /* ============================================================
