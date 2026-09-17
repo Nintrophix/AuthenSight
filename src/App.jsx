@@ -143,6 +143,8 @@ const PIPELINE_STEPS = [
   },
 ];
 
+const DISPLAY_PIPELINE_STEPS = PIPELINE_STEPS.slice(0, 8);
+
 
 // ── UploadZone Component ──────────────────────────────────────
 const UploadZone = ({ file, onFile, onRemove }) => {
@@ -185,7 +187,7 @@ const UploadZone = ({ file, onFile, onRemove }) => {
             <UploadCloudIcon size={36} className="dz-icon" color="var(--blue-bright)" />
           </div>
           <p className="dz-title">Drop your document here, or <span>browse</span></p>
-          <p className="dz-subtitle">Runs through all 10 pipeline stages automatically</p>
+          <p className="dz-subtitle">Runs through all 8 pipeline stages automatically</p>
           <div className="dz-types">
             {Object.values(ACCEPTED_TYPES).map((t) => (
               <span key={t} className="dz-type-tag">{t}</span>
@@ -219,7 +221,7 @@ const ProcessingSteps = ({ progress }) => {
 
   return (
     <div className="processing-steps">
-      {PIPELINE_STEPS.map((step, i) => {
+      {DISPLAY_PIPELINE_STEPS.map((step, i) => {
         const done = i < activeStep;
         const active = i === activeStep && progress < 100;
         return (
@@ -243,7 +245,7 @@ const ProcessingSteps = ({ progress }) => {
 const ProgressBar = ({ pct }) => (
   <div className="upload-progress">
     <div className="progress-label">
-      <span>Running pipeline — Stage {Math.min(Math.ceil(pct / 10), 10)}/10</span>
+      <span>Running pipeline — Stage {Math.min(Math.ceil(pct / 12.5), 8)}/8</span>
       <span className="progress-pct">{pct}%</span>
     </div>
     <div className="progress-track">
@@ -313,7 +315,7 @@ const ReportPage = ({ file, riskScore, onBack }) => {
     { label: 'Verification status', value: isHighRisk ? 'Manual review recommended' : 'Authenticity signals passed' },
     { label: 'Report ID', value: `AUTH-${String(riskScore).padStart(3, '0')}-LIVE` },
   ];
-  const stageResults = PIPELINE_STEPS.map((step, index) => ({
+  const stageResults = DISPLAY_PIPELINE_STEPS.map((step, index) => ({
     ...step,
     status: index === 6 && isHighRisk ? 'Review' : 'Passed',
     tone: index === 6 && isHighRisk ? 'warning' : 'success',
@@ -393,7 +395,7 @@ const ReportPage = ({ file, riskScore, onBack }) => {
         <section className="report-detail-panel stage-panel" aria-labelledby="stage-results-heading">
           <div className="report-panel-heading">
             <div><span className="section-label">Pipeline trace</span><h2 id="stage-results-heading">Stage-by-stage results</h2></div>
-            <span className="report-status success">10 / 10 complete</span>
+            <span className="report-status success">8 / 8 complete</span>
           </div>
           <div className="stage-results">
             {stageResults.map((stage) => (
@@ -434,18 +436,16 @@ export default function App() {
     setPhase('uploading');
     setProgress(0);
 
-    // Simulate 10-stage pipeline progression
+    // Simulate 8-stage pipeline progression
     const milestones = [
-      { pct: 5,  delay: 300  },
-      { pct: 15, delay: 800  },
-      { pct: 25, delay: 1400 },
-      { pct: 35, delay: 2000 },
-      { pct: 45, delay: 2600 },
-      { pct: 55, delay: 3100 },
-      { pct: 65, delay: 3700 },
-      { pct: 77, delay: 4200 },
-      { pct: 88, delay: 4700 },
-      { pct: 100, delay: 5200 },
+      { pct: 8, delay: 300 },
+      { pct: 20, delay: 800 },
+      { pct: 32, delay: 1400 },
+      { pct: 45, delay: 2000 },
+      { pct: 58, delay: 2600 },
+      { pct: 70, delay: 3100 },
+      { pct: 85, delay: 3700 },
+      { pct: 100, delay: 4200 },
     ];
 
     milestones.forEach(({ pct, delay }) => {
@@ -485,9 +485,9 @@ export default function App() {
         <nav className="navbar" role="navigation" aria-label="Main navigation">
           <div className="container">
             <div className="navbar-inner">
-              <a href="/" className="nav-logo" aria-label="AuthenSite home">
-                <img src="/logo.jpg" alt="AuthenSite logo" className="nav-logo-img" />
-                <span className="nav-logo-text">AuthenSite</span>
+              <a href="/" className="nav-logo" aria-label="AuthenSight home">
+                <img src="/logo.jpg" alt="AuthenSight logo" className="nav-logo-img" />
+                <span className="nav-logo-text">AuthenSight</span>
               </a>
               <ul className="nav-links">
                 <li><button className={activeView === 'try' ? 'active' : ''} onClick={() => showView('try')}>Try it</button></li>
@@ -495,8 +495,8 @@ export default function App() {
                 <li><button className={activeView === 'report' ? 'active' : ''} onClick={() => showView('report')}>Report</button></li>
               </ul>
               <div className="nav-cta">
-                <button id="nav-docs-btn" className="btn-nav-secondary">Documentation</button>
-                <button id="nav-getstarted-btn" className="btn-nav-primary">Get Started</button>
+                <button id="nav-docs-btn" className="btn-nav-secondary">Triple Trouble</button>
+                <button id="nav-getstarted-btn" className="btn-nav-primary">Sensora 2.0</button>
               </div>
             </div>
           </div>
@@ -514,7 +514,7 @@ export default function App() {
                 </div>
                 <div>
                   <h2 className="upload-card-title" id="upload-heading">Run the Pipeline</h2>
-                  <p className="upload-card-subtitle">Upload a PDF or image — all 10 stages run automatically</p>
+                  <p className="upload-card-subtitle">Upload a PDF or image — all 8 stages run automatically</p>
                 </div>
               </div>
 
@@ -579,7 +579,7 @@ export default function App() {
                 Verification Pipeline
               </div>
               <h2 className="section-title" id="pipeline-heading">
-                10-Stage Automated Document Intelligence
+                8-Stage Automated Document Intelligence
               </h2>
               <p className="section-subtitle" style={{ whiteSpace: 'nowrap' }}>
                 Every document passes through each stage sequentially from raw image quality checks to final XGBoost risk scoring with full traceability.
@@ -587,7 +587,7 @@ export default function App() {
             </div>
 
             <div className="pipeline-grid">
-              {PIPELINE_STEPS.map((step, i) => (
+              {DISPLAY_PIPELINE_STEPS.map((step, i) => (
                 <PipelineCard key={step.id} step={step} index={i} />
               ))}
             </div>
@@ -601,15 +601,15 @@ export default function App() {
           <div className="container">
             <div className="footer-inner">
               <div className="footer-logo">
-                <img src="/logo.jpg" alt="AuthenSite" className="footer-logo-img" />
-                <span className="footer-logo-text">AuthenSite</span>
+                <img src="/logo.jpg" alt="AuthenSight" className="footer-logo-img" />
+                <span className="footer-logo-text">AuthenSight</span>
               </div>
               <ul className="footer-links">
                 <li><a href="#pipeline">Pipeline</a></li>
                 <li><a href="#privacy">Privacy</a></li>
                 <li><a href="#contact">Contact</a></li>
               </ul>
-              <p className="footer-copy">© 2025 AuthenSite Inc. All rights reserved.</p>
+              <p className="footer-copy">© 2025 AuthenSight Inc. All rights reserved.</p>
             </div>
           </div>
         </footer>
