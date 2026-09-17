@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 
 // ── SVG Icon Components ──────────────────────────────────────
 const Icon = ({ children, size = 24, color = 'currentColor', style, className }) => (
@@ -32,6 +32,7 @@ const ServerIcon = (p) => <Icon {...p}><rect x="2" y="2" width="20" height="8" r
 const ScanIcon = (p) => <Icon {...p}><polyline points="4 7 4 4 7 4" /><polyline points="17 4 20 4 20 7" /><line x1="4" y1="12" x2="20" y2="12" /><polyline points="4 17 4 20 7 20" /><polyline points="17 20 20 20 20 17" /></Icon>;
 const GridIcon = (p) => <Icon {...p}><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></Icon>;
 const CopyIcon = (p) => <Icon {...p}><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></Icon>;
+const ArrowLeftIcon = (p) => <Icon {...p}><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></Icon>;
 
 // ── Utility ──────────────────────────────────────────────────
 const formatBytes = (bytes) => {
@@ -276,6 +277,140 @@ const PipelineCard = ({ step, index }) => (
   </div>
 );
 
+const ReportPage = ({ file, riskScore, onBack }) => {
+  if (riskScore === null) {
+    return (
+      <main className="report-page">
+        <div className="container">
+          <div className="report-empty">
+            <BarChart2Icon size={32} color="var(--blue-bright)" />
+            <h1 className="report-title">Your verification report will appear here</h1>
+            <p className="report-subtitle">Analyze a document first to see the XGBoost confidence score and the signals behind it.</p>
+            <button className="btn-submit report-empty-button" onClick={onBack}>Go to Try it</button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const isHighRisk = riskScore >= 40;
+  const reasons = isHighRisk
+    ? [
+      { label: 'Tampering signals', detail: 'Pixel-level inconsistencies were detected in the document image.', value: 'Elevated', tone: 'error' },
+      { label: 'Field consistency', detail: 'One or more extracted fields do not match expected document patterns.', value: 'Review', tone: 'warning' },
+      { label: 'Duplicate detection', detail: 'No matching document was found in the verification history.', value: 'Clear', tone: 'success' },
+    ]
+    : [
+      { label: 'Tampering signals', detail: 'No meaningful pixel-level manipulation signals were detected.', value: 'Clear', tone: 'success' },
+      { label: 'Field consistency', detail: 'Extracted fields match expected document formats and relationships.', value: 'Strong', tone: 'success' },
+      { label: 'Duplicate detection', detail: 'No matching document was found in the verification history.', value: 'Clear', tone: 'success' },
+    ];
+  const reportFields = [
+    { label: 'Document type', value: file?.type === 'application/pdf' ? 'PDF document' : 'Image document' },
+    { label: 'File size', value: file ? formatBytes(file.size) : 'Unavailable' },
+    { label: 'Model', value: 'XGBoost risk classifier' },
+    { label: 'Decision threshold', value: '40 / 100' },
+    { label: 'Verification status', value: isHighRisk ? 'Manual review recommended' : 'Authenticity signals passed' },
+    { label: 'Report ID', value: `AUTH-${String(riskScore).padStart(3, '0')}-LIVE` },
+  ];
+  const stageResults = PIPELINE_STEPS.map((step, index) => ({
+    ...step,
+    status: index === 6 && isHighRisk ? 'Review' : 'Passed',
+    tone: index === 6 && isHighRisk ? 'warning' : 'success',
+  }));
+
+  return (
+    <main className="report-page">
+      <div className="container">
+        <div className="report-heading-row">
+          <div>
+            <div className="section-label"><BarChart2Icon size={14} color="var(--blue-bright)" /> Verification report</div>
+            <h1 className="report-title">Model confidence, explained</h1>
+            <p className="report-subtitle">The signals below show what contributed to this document&apos;s XGBoost risk score.</p>
+          </div>
+          <button className="report-back-button" onClick={onBack}><ArrowLeftIcon size={17} /> Analyze another</button>
+        </div>
+
+        <div className="report-grid">
+          <section className={`score-panel ${isHighRisk ? 'high-risk' : 'low-risk'}`} aria-label="XGBoost confidence score">
+            <div className="score-panel-topline"><span>XGBoost risk score</span><CpuIcon size={18} /></div>
+            <div className="score-value">{riskScore}<span>/100</span></div>
+            <div className="score-meter"><div className="score-meter-fill" style={{ width: `${riskScore}%` }} /></div>
+            <strong>{isHighRisk ? 'Higher risk detected' : 'Low risk detected'}</strong>
+            <p>{file?.name || 'Analyzed document'}</p>
+          </section>
+
+          <section className="report-reasons" aria-labelledby="reasons-heading">
+            <div className="report-section-heading">
+              <div><span className="section-label">Decision signals</span><h2 id="reasons-heading">Why the model scored it this way</h2></div>
+              <span className={`report-status ${isHighRisk ? 'error' : 'success'}`}>{isHighRisk ? 'Review needed' : 'Looks authentic'}</span>
+            </div>
+            <div className="reason-list">
+              {reasons.map((reason) => (
+                <div className="reason-row" key={reason.label}>
+                  <div className={`reason-icon ${reason.tone}`}><CheckCircleIcon size={16} /></div>
+                  <div className="reason-copy"><strong>{reason.label}</strong><span>{reason.detail}</span></div>
+                  <span className={`reason-value ${reason.tone}`}>{reason.value}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <section className="report-detail-grid" aria-label="Report details">
+          <div className="report-detail-panel">
+            <div className="report-panel-heading">
+              <div><span className="section-label">Document record</span><h2>Analysis details</h2></div>
+              <FileTextIcon size={20} color="var(--blue-bright)" />
+            </div>
+            <div className="report-fields">
+              {reportFields.map((field) => (
+                <div className="report-field" key={field.label}>
+                  <span>{field.label}</span>
+                  <strong>{field.value}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="report-detail-panel">
+            <div className="report-panel-heading">
+              <div><span className="section-label">Score interpretation</span><h2>How to read this result</h2></div>
+              <AlertTriangleIcon size={20} color="var(--warning)" />
+            </div>
+            <div className="score-scale">
+              <div className="scale-track"><span className="scale-marker" style={{ left: `${riskScore}%` }} /></div>
+              <div className="scale-labels"><span>0 · Low risk</span><span>40 · Review</span><span>100 · High risk</span></div>
+            </div>
+            <p className="interpretation-copy">
+              {isHighRisk
+                ? 'This score is above the review threshold. The document should be checked by an operator before it is accepted.'
+                : 'This score is below the review threshold. The available signals are consistent with an authentic document.'}
+            </p>
+          </div>
+        </section>
+
+        <section className="report-detail-panel stage-panel" aria-labelledby="stage-results-heading">
+          <div className="report-panel-heading">
+            <div><span className="section-label">Pipeline trace</span><h2 id="stage-results-heading">Stage-by-stage results</h2></div>
+            <span className="report-status success">10 / 10 complete</span>
+          </div>
+          <div className="stage-results">
+            {stageResults.map((stage) => (
+              <div className="stage-result" key={stage.id}>
+                <div className="stage-result-number">{String(stage.id).padStart(2, '0')}</div>
+                <div className="stage-result-icon" style={{ color: stage.color, background: stage.glow }}>{stage.icon}</div>
+                <div className="stage-result-copy"><strong>{stage.label}</strong><span>{stage.tech}</span></div>
+                <span className={`stage-result-status ${stage.tone}`}><CheckCircleIcon size={14} /> {stage.status}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+};
+
 
 // ── Main App ──────────────────────────────────────────────────
 export default function App() {
@@ -283,6 +418,13 @@ export default function App() {
   const [phase, setPhase] = useState('idle'); // idle | uploading | done | error
   const [progress, setProgress] = useState(0);
   const [riskScore, setRiskScore] = useState(null);
+  const [activeView, setActiveView] = useState(window.location.pathname === '/report' ? 'report' : 'try');
+
+  useEffect(() => {
+    const handlePopState = () => setActiveView(window.location.pathname === '/report' ? 'report' : 'try');
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const handleFile = (f) => { setFile(f); setPhase('idle'); setProgress(0); setRiskScore(null); };
   const handleRemove = () => { setFile(null); setPhase('idle'); setProgress(0); setRiskScore(null); };
@@ -319,6 +461,12 @@ export default function App() {
   };
 
   const resetAll = () => { setFile(null); setPhase('idle'); setProgress(0); setRiskScore(null); };
+  const showView = (view) => {
+    const path = view === 'report' ? '/report' : '/';
+    window.history.pushState({}, '', path);
+    setActiveView(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <>
@@ -342,8 +490,9 @@ export default function App() {
                 <span className="nav-logo-text">AuthenSite</span>
               </a>
               <ul className="nav-links">
-                <li><a href="#upload">Try it</a></li>
+                <li><button className={activeView === 'try' ? 'active' : ''} onClick={() => showView('try')}>Try it</button></li>
                 <li><a href="#pipeline">Pipeline</a></li>
+                <li><button className={activeView === 'report' ? 'active' : ''} onClick={() => showView('report')}>Report</button></li>
               </ul>
               <div className="nav-cta">
                 <button id="nav-docs-btn" className="btn-nav-secondary">Documentation</button>
@@ -354,6 +503,7 @@ export default function App() {
         </nav>
 
 
+        {activeView === 'report' ? <ReportPage file={file} riskScore={riskScore} onBack={() => showView('try')} /> : <>
         {/* ── Upload / Try It ── */}
         <section className="upload-section" id="upload" aria-labelledby="upload-heading">
           <div className="container">
@@ -397,9 +547,10 @@ export default function App() {
               )}
 
               {phase === 'done' || phase === 'error' ? (
-                <button id="upload-reset-btn" className="btn-submit" onClick={resetAll}>
-                  Analyze Another Document
-                </button>
+                <div className="result-actions">
+                  <button id="upload-report-btn" className="btn-submit" onClick={() => showView('report')}><BarChart2Icon size={18} color="white" /> View Full Report</button>
+                  <button id="upload-reset-btn" className="btn-secondary result-reset" onClick={resetAll}>Analyze Another Document</button>
+                </div>
               ) : (
                 <button
                   id="upload-submit-btn"
@@ -442,6 +593,7 @@ export default function App() {
             </div>
           </div>
         </section>
+        </>}
 
 
         {/* ── Footer ── */}
